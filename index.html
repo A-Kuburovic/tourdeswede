@@ -67,6 +67,12 @@
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+
+        ul li.completed {
+            text-decoration: line-through;
+            color: gray;
         }
 
         ul li .buttons {
@@ -90,6 +96,10 @@
         ul li .buttons button:hover {
             opacity: 0.8;
         }
+
+        ul li input[type="checkbox"] {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +117,11 @@
             if (newItemText === '') return;
 
             const listItem = document.createElement('li');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.onclick = () => toggleComplete(listItem);
+
             const textNode = document.createTextNode(newItemText);
 
             const buttonsDiv = document.createElement('div');
@@ -124,6 +139,7 @@
             buttonsDiv.appendChild(editButton);
             buttonsDiv.appendChild(deleteButton);
 
+            listItem.appendChild(checkbox);
             listItem.appendChild(textNode);
             listItem.appendChild(buttonsDiv);
 
@@ -136,10 +152,14 @@
         }
 
         function editItem(item) {
-            const newText = prompt('Update the item:', item.firstChild.textContent);
+            const newText = prompt('Update the item:', item.childNodes[1].textContent);
             if (newText !== null && newText !== '') {
-                item.firstChild.textContent = newText;
+                item.childNodes[1].textContent = newText;
             }
+        }
+
+        function toggleComplete(item) {
+            item.classList.toggle('completed');
         }
     </script>
 </body>
