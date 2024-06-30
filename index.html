@@ -81,6 +81,11 @@
             color: gray;
         }
 
+        ul li.completed .buttons button {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         ul li .buttons {
             display: flex;
             gap: 10px;
@@ -140,9 +145,11 @@
 
         function deleteItem(itemElement) {
             const text = itemElement.querySelector('span').textContent;
-            itemElement.remove();
-            deleteItemFromStorage(text);
-            updateCounter();
+            if (confirm('Are you sure you want to delete this item?')) {
+                itemElement.remove();
+                deleteItemFromStorage(text);
+                updateCounter();
+            }
         }
 
         function editItem(itemElement) {
@@ -159,6 +166,7 @@
             const checkbox = itemElement.querySelector('input[type="checkbox"]');
             const text = itemElement.querySelector('span').textContent;
             updateItemInStorage(checkbox.checked, text, text);
+            toggleButtons(itemElement, checkbox.checked);
             updateCounter();
         }
 
@@ -195,7 +203,16 @@
             listItem.appendChild(textNode);
             listItem.appendChild(buttonsDiv);
 
+            toggleButtons(listItem, item.completed);
+
             return listItem;
+        }
+
+        function toggleButtons(listItem, completed) {
+            const buttons = listItem.querySelectorAll('.buttons button');
+            buttons.forEach(button => {
+                button.disabled = completed;
+            });
         }
 
         function saveItem(item) {
