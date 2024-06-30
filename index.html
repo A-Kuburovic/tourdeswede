@@ -112,17 +112,59 @@
         <ul id="checklist"></ul>
     </div>
     <script>
+        document.addEventListener('DOMContentLoaded', loadItems);
+
         function addItem() {
             const newItemText = document.getElementById('new-item').value;
             if (newItemText === '') return;
 
+            const item = {
+                text: newItemText,
+                completed: false
+            };
+
+            const listItem = createListItem(item);
+            document.getElementById('checklist').appendChild(listItem);
+            document.getElementById('new-item').value = '';
+
+            saveItem(item);
+        }
+
+        function deleteItem(itemElement) {
+            const text = itemElement.querySelector('span').textContent;
+            itemElement.remove();
+            deleteItemFromStorage(text);
+        }
+
+        function editItem(itemElement) {
+            const span = itemElement.querySelector('span');
+            const newText = prompt('Update the item:', span.textContent);
+            if (newText !== null && newText !== '') {
+                span.textContent = newText;
+                updateItemInStorage(span.previousSibling.checked, span.textContent, span.textContent);
+            }
+        }
+
+        function toggleComplete(itemElement) {
+            itemElement.classList.toggle('completed');
+            const checkbox = itemElement.querySelector('input[type="checkbox"]');
+            const text = itemElement.querySelector('span').textContent;
+            updateItemInStorage(checkbox.checked, text, text);
+        }
+
+        function createListItem(item) {
             const listItem = document.createElement('li');
+            if (item.completed) {
+                listItem.classList.add('completed');
+            }
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
+            checkbox.checked = item.completed;
             checkbox.onclick = () => toggleComplete(listItem);
 
-            const textNode = document.createTextNode(newItemText);
+            const textNode = document.createElement('span');
+            textNode.textContent = item.text;
 
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'buttons';
@@ -143,23 +185,36 @@
             listItem.appendChild(textNode);
             listItem.appendChild(buttonsDiv);
 
-            document.getElementById('checklist').appendChild(listItem);
-            document.getElementById('new-item').value = '';
+            return listItem;
         }
 
-        function deleteItem(item) {
-            item.remove();
+        function saveItem(item) {
+            let items = JSON.parse(localStorage.getItem('checklistItems')) || [];
+            items.push(item);
+            localStorage.setItem('checklistItems', JSON.stringify(items));
         }
 
-        function editItem(item) {
-            const newText = prompt('Update the item:', item.childNodes[1].textContent);
-            if (newText !== null && newText !== '') {
-                item.childNodes[1].textContent = newText;
+        function deleteItemFromStorage(text) {
+            let items = JSON.parse(localStorage.getItem('checklistItems')) || [];
+            items = items.filter(item => item.text !== text);
+            localStorage.setItem('checklistItems', JSON.stringify(items));
+        }
+
+        function updateItemInStorage(completed, oldText, newText) {
+            let items = JSON.parse(localStorage.getItem('checklistItems')) || [];
+            const index = items.findIndex(item => item.text === oldText);
+            if (index !== -1) {
+                items[index] = { text: newText, completed: completed };
+                localStorage.setItem('checklistItems', JSON.stringify(items));
             }
         }
 
-        function toggleComplete(item) {
-            item.classList.toggle('completed');
+        function loadItems() {
+            let items = JSON.parse(localStorage.getItem('checklistItems')) || [];
+            items.forEach(item => {
+                const listItem = createListItem(item);
+                document.getElementById('checklist').appendChild(listItem);
+            });
         }
     </script>
 </body>
