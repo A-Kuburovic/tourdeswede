@@ -54,6 +54,12 @@
             background-color: #45a049;
         }
 
+        .counter {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
         ul {
             list-style-type: none;
             padding: 0;
@@ -105,6 +111,7 @@
 <body>
     <div class="container">
         <h1>Tour de Swede</h1>
+        <div class="counter" id="counter">0 of 0</div>
         <div class="input-section">
             <input type="text" id="new-item" placeholder="Add a new item">
             <button onclick="addItem()">Add</button>
@@ -128,12 +135,14 @@
             document.getElementById('new-item').value = '';
 
             saveItem(item);
+            updateCounter();
         }
 
         function deleteItem(itemElement) {
             const text = itemElement.querySelector('span').textContent;
             itemElement.remove();
             deleteItemFromStorage(text);
+            updateCounter();
         }
 
         function editItem(itemElement) {
@@ -150,6 +159,7 @@
             const checkbox = itemElement.querySelector('input[type="checkbox"]');
             const text = itemElement.querySelector('span').textContent;
             updateItemInStorage(checkbox.checked, text, text);
+            updateCounter();
         }
 
         function createListItem(item) {
@@ -215,6 +225,14 @@
                 const listItem = createListItem(item);
                 document.getElementById('checklist').appendChild(listItem);
             });
+            updateCounter();
+        }
+
+        function updateCounter() {
+            const items = JSON.parse(localStorage.getItem('checklistItems')) || [];
+            const totalItems = items.length;
+            const completedItems = items.filter(item => item.completed).length;
+            document.getElementById('counter').textContent = `${completedItems} of ${totalItems}`;
         }
     </script>
 </body>
